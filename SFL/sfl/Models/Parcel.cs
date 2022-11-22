@@ -1,5 +1,5 @@
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace sfl.Models
 {
@@ -18,7 +18,9 @@ namespace sfl.Models
         public int Depth { get; set; }
 
         [Required]
-        public ParcelStatus? ParcelStatus { get; set; }
+        public int ParcelStatusID { get; set; }
+        [Required]
+        public virtual ParcelStatus? ParcelStatus { get; set; }
 
         [ForeignKey("RecipientStreet")]
         [Required]
@@ -40,7 +42,6 @@ namespace sfl.Models
         [Required]
         public virtual Street? SenderStreet { get; set; }
 
-        [Required]
-        public ICollection<Job>? Jobs { get; set; }
+        public virtual ICollection<JobParcel>? JobsParcels { get; set; }
     }
 }

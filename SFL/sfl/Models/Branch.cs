@@ -1,5 +1,5 @@
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace sfl.Models
 {
@@ -12,15 +12,12 @@ namespace sfl.Models
         [StringLength(45)]
         public string? Name { get; set; }
 
-        /*[Required]
+        //[Required]
         public string? CityCode { get; set; }
-        [Required]
         public string? StreetName { get; set; }
+        public int StreetNumber { get; set; }
+        public virtual Street? Street { get; set; }
         [Required]
-        public int StreetNumber { get; set; }*/
-        [Required]
-        public Street? Street { get; set; }
-        [Required]
-        public ICollection<Staff>? Staff { get; set; }
+        public virtual ICollection<Staff>? Staff { get; set; }
     }
 }

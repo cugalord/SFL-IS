@@ -275,3 +275,5 @@ G:\Documents\FRI\3. letnik\IS\project\SFL-IS\SFL\sfl\obj\Debug\net7.0\refint\sfl
 G:\Documents\FRI\3. letnik\IS\project\SFL-IS\SFL\sfl\obj\Debug\net7.0\sfl.pdb
 G:\Documents\FRI\3. letnik\IS\project\SFL-IS\SFL\sfl\obj\Debug\net7.0\sfl.genruntimeconfig.cache
 G:\Documents\FRI\3. letnik\IS\project\SFL-IS\SFL\sfl\obj\Debug\net7.0\ref\sfl.dll
+G:\Documents\FRI\3. letnik\IS\project\SFL-IS\SFL\sfl\bin\Debug\net7.0\Castle.Core.dll
+G:\Documents\FRI\3. letnik\IS\project\SFL-IS\SFL\sfl\bin\Debug\net7.0\Microsoft.EntityFrameworkCore.Proxies.dll

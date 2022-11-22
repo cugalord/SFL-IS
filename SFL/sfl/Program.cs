@@ -1,4 +1,4 @@
-using web.Data;
+using sfl.Data;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -7,9 +7,16 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<CompanyContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("CompanyContext")));
+            options.UseLazyLoadingProxies().UseSqlServer(builder.Configuration.GetConnectionString("CompanyContext")));
 
 var app = builder.Build();
+
+// Seed database using DbInitializer 
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<CompanyContext>();
+    DbInitializer.Initialize(context);
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

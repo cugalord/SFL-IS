@@ -5,14 +5,14 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using web.Data;
+using sfl.Data;
 
 #nullable disable
 
 namespace sfl.Migrations
 {
     [DbContext(typeof(CompanyContext))]
-    [Migration("20221120222850_Initial")]
+    [Migration("20221122115212_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -21,24 +21,12 @@ namespace sfl.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "7.0.0")
+                .HasAnnotation("Proxies:ChangeTracking", false)
+                .HasAnnotation("Proxies:CheckEquality", false)
+                .HasAnnotation("Proxies:LazyLoading", true)
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("JobParcel", b =>
-                {
-                    b.Property<int>("JobsID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ParcelsID")
-                        .HasColumnType("nvarchar(8)");
-
-                    b.HasKey("JobsID", "ParcelsID");
-
-                    b.HasIndex("ParcelsID");
-
-                    b.ToTable("JobParcel");
-                });
 
             modelBuilder.Entity("sfl.Models.Branch", b =>
                 {
@@ -57,7 +45,6 @@ namespace sfl.Migrations
                         .HasColumnType("nvarchar(45)");
 
                     b.Property<string>("StreetName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(150)");
 
                     b.Property<int>("StreetNumber")
@@ -67,7 +54,7 @@ namespace sfl.Migrations
 
                     b.HasIndex("StreetName", "StreetNumber", "CityCode")
                         .IsUnique()
-                        .HasFilter("[CityCode] IS NOT NULL");
+                        .HasFilter("[StreetName] IS NOT NULL AND [CityCode] IS NOT NULL");
 
                     b.ToTable("Branch", (string)null);
                 });
@@ -96,7 +83,7 @@ namespace sfl.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
-                    b.Property<DateTime>("DateCompleted")
+                    b.Property<DateTime?>("DateCompleted")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("DateCreated")
@@ -121,6 +108,30 @@ namespace sfl.Migrations
                     b.HasIndex("StaffUsername");
 
                     b.ToTable("Job", (string)null);
+                });
+
+            modelBuilder.Entity("sfl.Models.JobParcel", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("JobID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ParcelID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(8)");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("JobID");
+
+                    b.HasIndex("ParcelID");
+
+                    b.ToTable("JobParcel", (string)null);
                 });
 
             modelBuilder.Entity("sfl.Models.JobStatus", b =>
@@ -156,8 +167,10 @@ namespace sfl.Migrations
             modelBuilder.Entity("sfl.Models.Parcel", b =>
                 {
                     b.Property<string>("ID")
+                        .ValueGeneratedOnAdd()
                         .HasMaxLength(8)
-                        .HasColumnType("nvarchar(8)");
+                        .HasColumnType("nvarchar(8)")
+                        .HasDefaultValueSql("SUBSTRING(CONVERT(varchar(50), NEWID()), 1, 8)");
 
                     b.Property<int>("Depth")
                         .HasColumnType("int");
@@ -287,28 +300,11 @@ namespace sfl.Migrations
                     b.ToTable("Street", (string)null);
                 });
 
-            modelBuilder.Entity("JobParcel", b =>
-                {
-                    b.HasOne("sfl.Models.Job", null)
-                        .WithMany()
-                        .HasForeignKey("JobsID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("sfl.Models.Parcel", null)
-                        .WithMany()
-                        .HasForeignKey("ParcelsID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("sfl.Models.Branch", b =>
                 {
                     b.HasOne("sfl.Models.Street", "Street")
                         .WithOne("Branch")
-                        .HasForeignKey("sfl.Models.Branch", "StreetName", "StreetNumber", "CityCode")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("sfl.Models.Branch", "StreetName", "StreetNumber", "CityCode");
 
                     b.Navigation("Street");
                 });
@@ -338,6 +334,25 @@ namespace sfl.Migrations
                     b.Navigation("JobType");
 
                     b.Navigation("Staff");
+                });
+
+            modelBuilder.Entity("sfl.Models.JobParcel", b =>
+                {
+                    b.HasOne("sfl.Models.Job", "Job")
+                        .WithMany("JobsParcels")
+                        .HasForeignKey("JobID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("sfl.Models.Parcel", "Parcel")
+                        .WithMany("JobsParcels")
+                        .HasForeignKey("ParcelID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Job");
+
+                    b.Navigation("Parcel");
                 });
 
             modelBuilder.Entity("sfl.Models.Parcel", b =>
@@ -407,6 +422,11 @@ namespace sfl.Migrations
                     b.Navigation("Streets");
                 });
 
+            modelBuilder.Entity("sfl.Models.Job", b =>
+                {
+                    b.Navigation("JobsParcels");
+                });
+
             modelBuilder.Entity("sfl.Models.JobStatus", b =>
                 {
                     b.Navigation("Jobs");
@@ -415,6 +435,11 @@ namespace sfl.Migrations
             modelBuilder.Entity("sfl.Models.JobType", b =>
                 {
                     b.Navigation("Jobs");
+                });
+
+            modelBuilder.Entity("sfl.Models.Parcel", b =>
+                {
+                    b.Navigation("JobsParcels");
                 });
 
             modelBuilder.Entity("sfl.Models.ParcelStatus", b =>

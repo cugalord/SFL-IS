@@ -1,5 +1,5 @@
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace sfl.Models
 {
@@ -11,15 +11,27 @@ namespace sfl.Models
         [Required]
         public DateTime DateCreated { get; set; }
         // Can be null.
-        public DateTime DateCompleted { get; set; }
+        public DateTime? DateCompleted { get; set; }
 
         [Required]
-        public JobStatus? JobStatus { get; set; }
+        public virtual int JobStatusID { get; set; }
         [Required]
-        public JobType? JobType { get; set; }
+        public virtual JobStatus? JobStatus { get; set; }
+
         [Required]
-        public Staff? Staff { get; set; }
+        public virtual int JobTypeID { get; set; }
         [Required]
-        public ICollection<Parcel>? Parcels { get; set; }
+        public virtual JobType? JobType { get; set; }
+
+        [Required]
+        public virtual string? StaffUsername { get; set; }
+        [Required]
+        public virtual Staff? Staff { get; set; }
+
+        [Required]
+        public virtual ICollection<JobParcel>? JobsParcels { get; set; }
+
+        [NotMapped]
+        public ICollection<string> ParcelIDs = new List<string> { };
     }
 }

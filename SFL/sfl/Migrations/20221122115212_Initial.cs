@@ -97,9 +97,9 @@ namespace sfl.Migrations
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(45)", maxLength: 45, nullable: false),
-                    StreetName = table.Column<string>(type: "nvarchar(150)", nullable: false),
-                    StreetNumber = table.Column<int>(type: "int", nullable: false),
-                    CityCode = table.Column<string>(type: "nvarchar(20)", nullable: true)
+                    CityCode = table.Column<string>(type: "nvarchar(20)", nullable: true),
+                    StreetName = table.Column<string>(type: "nvarchar(150)", nullable: true),
+                    StreetNumber = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -108,15 +108,14 @@ namespace sfl.Migrations
                         name: "FK_Branch_Street_StreetName_StreetNumber_CityCode",
                         columns: x => new { x.StreetName, x.StreetNumber, x.CityCode },
                         principalTable: "Street",
-                        principalColumns: new[] { "StreetName", "StreetNumber", "CityCode" },
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumns: new[] { "StreetName", "StreetNumber", "CityCode" });
                 });
 
             migrationBuilder.CreateTable(
                 name: "Parcel",
                 columns: table => new
                 {
-                    ID = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: false),
+                    ID = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: false, defaultValueSql: "SUBSTRING(CONVERT(varchar(50), NEWID()), 1, 8)"),
                     Weight = table.Column<double>(type: "float", nullable: false),
                     Height = table.Column<int>(type: "int", nullable: false),
                     Width = table.Column<int>(type: "int", nullable: false),
@@ -186,7 +185,7 @@ namespace sfl.Migrations
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DateCompleted = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DateCompleted = table.Column<DateTime>(type: "datetime2", nullable: true),
                     JobStatusID = table.Column<int>(type: "int", nullable: false),
                     JobTypeID = table.Column<int>(type: "int", nullable: false),
                     StaffUsername = table.Column<string>(type: "nvarchar(20)", nullable: false)
@@ -218,21 +217,23 @@ namespace sfl.Migrations
                 name: "JobParcel",
                 columns: table => new
                 {
-                    JobsID = table.Column<int>(type: "int", nullable: false),
-                    ParcelsID = table.Column<string>(type: "nvarchar(8)", nullable: false)
+                    ID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ParcelID = table.Column<string>(type: "nvarchar(8)", nullable: false),
+                    JobID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_JobParcel", x => new { x.JobsID, x.ParcelsID });
+                    table.PrimaryKey("PK_JobParcel", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_JobParcel_Job_JobsID",
-                        column: x => x.JobsID,
+                        name: "FK_JobParcel_Job_JobID",
+                        column: x => x.JobID,
                         principalTable: "Job",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_JobParcel_Parcel_ParcelsID",
-                        column: x => x.ParcelsID,
+                        name: "FK_JobParcel_Parcel_ParcelID",
+                        column: x => x.ParcelID,
                         principalTable: "Parcel",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
@@ -243,7 +244,7 @@ namespace sfl.Migrations
                 table: "Branch",
                 columns: new[] { "StreetName", "StreetNumber", "CityCode" },
                 unique: true,
-                filter: "[CityCode] IS NOT NULL");
+                filter: "[StreetName] IS NOT NULL AND [CityCode] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Job_JobStatusID",
@@ -261,9 +262,14 @@ namespace sfl.Migrations
                 column: "StaffUsername");
 
             migrationBuilder.CreateIndex(
-                name: "IX_JobParcel_ParcelsID",
+                name: "IX_JobParcel_JobID",
                 table: "JobParcel",
-                column: "ParcelsID");
+                column: "JobID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_JobParcel_ParcelID",
+                table: "JobParcel",
+                column: "ParcelID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Parcel_ParcelStatusID",

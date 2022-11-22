@@ -6,8 +6,8 @@ namespace sfl.Models
     public class Staff
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         [StringLength(20)]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public string? Username { get; set; }
         [Required]
         [StringLength(85)]
@@ -17,9 +17,15 @@ namespace sfl.Models
         public string? Surname { get; set; }
 
         [Required]
-        public Branch? Branch { get; set; }
-        public ICollection<Job>? Jobs { get; set; }
+        [ForeignKey("BranchID")]
+        public int BranchID { get; set; }
         [Required]
-        public StaffRole? Role { get; set; }
+        public virtual Branch? Branch { get; set; }
+        public virtual ICollection<Job>? Jobs { get; set; }
+        [Required]
+        [ForeignKey(name: "RoleID")]
+        public int RoleID { get; set; }
+        [Required]
+        public virtual StaffRole? Role { get; set; }
     }
 }

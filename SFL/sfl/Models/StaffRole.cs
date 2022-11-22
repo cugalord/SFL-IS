@@ -1,5 +1,5 @@
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace sfl.Models
 {
@@ -12,6 +12,6 @@ namespace sfl.Models
         [StringLength(65)]
         public string? Name { get; set; }
 
-        public ICollection<Staff>? Staff { get; set; }
+        public virtual ICollection<Staff>? Staff { get; set; }
     }
 }
