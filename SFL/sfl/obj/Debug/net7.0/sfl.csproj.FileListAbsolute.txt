@@ -277,3 +277,7 @@ G:\Documents\FRI\3. letnik\IS\project\SFL-IS\SFL\sfl\obj\Debug\net7.0\sfl.genrun
 G:\Documents\FRI\3. letnik\IS\project\SFL-IS\SFL\sfl\obj\Debug\net7.0\ref\sfl.dll
 G:\Documents\FRI\3. letnik\IS\project\SFL-IS\SFL\sfl\bin\Debug\net7.0\Castle.Core.dll
 G:\Documents\FRI\3. letnik\IS\project\SFL-IS\SFL\sfl\bin\Debug\net7.0\Microsoft.EntityFrameworkCore.Proxies.dll
+G:\Documents\FRI\3. letnik\IS\project\SFL-IS\SFL\sfl\bin\Debug\net7.0\Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore.dll
+G:\Documents\FRI\3. letnik\IS\project\SFL-IS\SFL\sfl\bin\Debug\net7.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+G:\Documents\FRI\3. letnik\IS\project\SFL-IS\SFL\sfl\bin\Debug\net7.0\Microsoft.AspNetCore.Identity.UI.dll
+G:\Documents\FRI\3. letnik\IS\project\SFL-IS\SFL\sfl\obj\Debug\net7.0\sfl.MvcApplicationPartsAssemblyInfo.cs

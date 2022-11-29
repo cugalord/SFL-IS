@@ -1,9 +1,10 @@
 using sfl.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace sfl.Data
 {
-    public class CompanyContext : DbContext
+    public class CompanyContext : IdentityDbContext<ApplicationUser>
     {
 
         public CompanyContext(DbContextOptions<CompanyContext> options) : base(options)
@@ -25,6 +26,8 @@ namespace sfl.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<Branch>().ToTable("Branch");
             modelBuilder.Entity<City>().ToTable("City");
             modelBuilder.Entity<Job>().ToTable("Job");

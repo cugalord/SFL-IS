@@ -22,6 +22,12 @@
                 @Html.DisplayName("Date completed")
             </th>
             <th>
+                @Html.DisplayName("Status")
+            </th>
+            <th>
+                @Html.DisplayName("Type")
+            </th>
+            <th>
                 @Html.DisplayName("Parcels")
             </th>
             <th></th>
@@ -39,6 +45,12 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.DateCompleted)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.JobStatus.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.JobType.Name)
                 </td>
                 <td>
                     @foreach (var parcel in item.JobsParcels)

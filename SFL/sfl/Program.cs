@@ -1,22 +1,26 @@
 using sfl.Data;
+using sfl.Models;
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var connectionString = builder.Configuration.GetConnectionString("CompanyContext");
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<CompanyContext>();
+
 builder.Services.AddDbContext<CompanyContext>(options =>
-            options.UseLazyLoadingProxies().UseSqlServer(builder.Configuration.GetConnectionString("CompanyContext")));
+    options.UseSqlServer(connectionString));
 
 var app = builder.Build();
 
-// Seed database using DbInitializer 
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<CompanyContext>();
-    DbInitializer.Initialize(context);
-}
+CreateDbIfNotExists(app);
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -30,7 +34,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+app.UseAuthentication();
+app.MapRazorPages();
 app.UseAuthorization();
 
 app.MapControllerRoute(
@@ -38,3 +43,22 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+static void CreateDbIfNotExists(IHost host)
+{
+    using (var scope = host.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        try
+        {
+            var context = services.GetRequiredService<CompanyContext>();
+            //context.Database.EnsureCreated();
+            DbInitializer.Initialize(context);
+        }
+        catch (Exception ex)
+        {
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            logger.LogError(ex, "An error occurred creating the DB.");
+        }
+    }
+}

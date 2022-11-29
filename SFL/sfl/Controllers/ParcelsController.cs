@@ -1,23 +1,29 @@
+using sfl.Data;
+using sfl.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using sfl.Data;
-using sfl.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace sfl.Controllers
 {
+    [Authorize(Roles = "Administrator, Warehouse manager, Logistics agent")]
     public class ParcelsController : Controller
     {
         private readonly CompanyContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly string[] _navigationProperties;
 
-        public ParcelsController(CompanyContext context)
+        public ParcelsController(CompanyContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
             _navigationProperties = new string[] { "ParcelStatus", "RecipientStreet", "SenderStreet", "JobsParcels" };
         }
 

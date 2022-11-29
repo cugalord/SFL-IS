@@ -1,32 +1,86 @@
+using sfl.Data;
+using sfl.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using sfl.Data;
-using sfl.Models;
-
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 namespace sfl.Controllers
 {
+    [Authorize(Roles = "Administrator, Warehouse manager, Warehouse worker, Logistics agent, Delivery driver")]
     public class JobsController : Controller
     {
         private readonly CompanyContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly string[] _navigationProperties;
 
-        public JobsController(CompanyContext context)
+        public JobsController(CompanyContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
             _navigationProperties = new string[] { "JobsParcels", "Staff", "JobType", "JobStatus", "JobsParcels" };
         }
 
         // GET: Jobs
         public async Task<IActionResult> Index()
         {
-            return _context.Jobs != null ?
-                        View(await _context.Jobs.ToListAsync()) :
-                        Problem("Entity set 'CompanyContext.Jobs'  is null.");
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            var currentRole = currentUser == null ? null :
+                _context.UserRoles.Select(ur => new { ur.RoleId, ur.UserId })
+                    .Where(ur => ur.UserId == currentUser.Id)
+                    .First().RoleId;
+            var currentBranch = currentUser == null ? -1 :
+                _context.Staff.Select(s => new { s.Username, s.BranchID })
+                    .Where(s => s.Username == currentUser.UserName)
+                    .ToList()[0].BranchID;
+
+            if (currentRole == null || currentRole == null || currentBranch == -1)
+            {
+                return Problem("Entity set 'CompanyContext.Jobs'  is null.");
+            }
+
+            List<Job>? view = currentRole switch
+            {
+                "1" => await _context.Jobs.ToListAsync(),
+                "2" => await _context.Jobs.Select(j => j)
+                                        .Where(j => j.Staff.BranchID == currentBranch).ToListAsync(),
+                "3" => await _context.Jobs.Select(j => j)
+                                        .Where(j => j.StaffUsername == currentUser.UserName).ToListAsync(),
+                "4" => await _context.Jobs.Select(j => j).ToListAsync(),
+                "5" => await _context.Jobs.Select(j => j)
+                                        .Where(j => j.StaffUsername == currentUser.UserName).ToListAsync(),
+                _ => null,
+            };
+
+            if (view != null)
+            {
+                for (int i = 0; i < view.Count; i++)
+                {
+                    view[i].JobsParcels = _context.JobsParcels
+                        .Select(jp => jp)
+                        .Where(jp => jp.JobID == view[i].ID)
+                        .ToList();
+
+                    view[i].JobStatus = _context.JobStatuses
+                        .Select(js => js)
+                        .Where(js => js.ID == view[i].JobStatusID)
+                        .First();
+
+                    view[i].JobType = _context.JobTypes
+                        .Select(jt => jt)
+                        .Where(jt => jt.ID == view[i].JobTypeID)
+                        .First();
+                }
+
+            }
+
+            return view != null ? View(view) : Problem("Entity set 'CompanyContext.Jobs'  is null.");
         }
 
         // GET: Jobs/Details/5
@@ -39,6 +93,12 @@ namespace sfl.Controllers
 
             var job = await _context.Jobs
                 .FirstOrDefaultAsync(m => m.ID == id);
+
+            job.JobsParcels = _context.JobsParcels
+                .Select(jp => jp)
+                .Where(jp => jp.JobID == job.ID)
+                .ToList();
+
             if (job == null)
             {
                 return NotFound();
@@ -48,10 +108,35 @@ namespace sfl.Controllers
         }
 
         // GET: Jobs/Create
+        [Authorize(Roles = "Administrator, Warehouse manager, Logistics agent")]
         public IActionResult Create()
         {
+            var currentUserName = _userManager.GetUserName(User);
+            var currentUserId = _userManager.GetUserId(User);
+            var roleId = _context.UserRoles
+                .Select(ur => ur)
+                .Where(ur => ur.UserId == currentUserId)
+                .First().RoleId;
+
             ViewData["Parcels"] = new SelectList(_context.Parcels, "ID", "ID");
-            ViewData["StaffUsername"] = new SelectList(_context.Staff, "Username", "Username");
+
+            if (roleId == "1")
+            {
+                ViewData["StaffUsername"] = new SelectList(_context.Staff, "Username", "Username");
+            }
+            else
+            {
+                var currentBranch = currentUserName == null ? -1 :
+                    _context.Staff.Select(s => new { s.Username, s.BranchID })
+                        .Where(s => s.Username == currentUserName)
+                        .First().BranchID;
+
+                ViewData["StaffUsername"] = new SelectList(_context.Staff
+                    .Select(s => s)
+                    .Where(s => s.BranchID == currentBranch),
+                "Username", "Username");
+            }
+
             ViewData["JobTypeID"] = new SelectList(_context.JobTypes, "ID", "Name");
             return View();
         }
@@ -61,6 +146,7 @@ namespace sfl.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrator, Warehouse manager, Logistics agent")]
         public async Task<IActionResult> Create([Bind("ID,StaffUsername,JobTypeID,ParcelIDs")] Job job)
         {
             var ids = Request.Form["ParcelIDs"].ToList();
@@ -68,7 +154,7 @@ namespace sfl.Controllers
             if (ModelState.IsValid)
             {
                 job.DateCreated = DateTime.Now;
-                job.JobStatusID = _context.JobStatuses.Select(j => j.ID).Where(j => j == 0).ToList()[0];
+                job.JobStatusID = _context.JobStatuses.Select(j => j.ID).Where(j => j == 1).First();
                 // First create job.
                 _context.Add(job);
                 await _context.SaveChangesAsync();
@@ -86,13 +172,38 @@ namespace sfl.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
+
+            var currentUserName = _userManager.GetUserName(User);
+            var currentUserId = _userManager.GetUserId(User);
+            var roleId = _context.UserRoles
+                .Select(ur => ur)
+                .Where(ur => ur.UserId == currentUserId)
+                .First().RoleId;
+
+            if (roleId == "1")
+            {
+                ViewData["StaffUsername"] = new SelectList(_context.Staff, "Username", "Username");
+            }
+            else
+            {
+                var currentBranch = currentUserName == null ? -1 :
+                    _context.Staff.Select(s => new { s.Username, s.BranchID })
+                        .Where(s => s.Username == currentUserName)
+                        .First().BranchID;
+
+                ViewData["StaffUsername"] = new SelectList(_context.Staff
+                    .Select(s => s)
+                    .Where(s => s.BranchID == currentBranch),
+                "Username", "Username");
+            }
+
             ViewData["Parcels"] = new SelectList(_context.Parcels, "ID", "ID");
-            ViewData["StaffUsername"] = new SelectList(_context.Staff, "Username", "Username");
             ViewData["JobTypeID"] = new SelectList(_context.JobTypes, "ID", "Name");
             return View(job);
         }
 
         // GET: Jobs/Edit/5
+        [Authorize(Roles = "Administrator, Warehouse manager")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Jobs == null)
@@ -115,7 +226,8 @@ namespace sfl.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,DateCreated,DateCompleted,StaffUsername")] Job job)
+        [Authorize(Roles = "Administrator, Warehouse manager")]
+        public async Task<IActionResult> Edit(int id, [Bind("ID,DateCreated,DateCompleted,StaffUsername,JobStatusID,JobTypeID")] Job job)
         {
             if (id != job.ID)
             {
@@ -132,14 +244,12 @@ namespace sfl.Controllers
             ModelState.Remove("StaffUsername");
             if (ModelState.IsValid)
             {
-                Console.WriteLine("Editing job.");
                 try
                 {
                     job.StaffUsername = _context.Jobs.Select(j => new { j.StaffUsername, j.ID })
                         .Where(j => j.ID == job.ID).ToList()[0].StaffUsername;
                     _context.Update(job);
                     await _context.SaveChangesAsync();
-                    Console.WriteLine("Job updated.");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -159,6 +269,7 @@ namespace sfl.Controllers
         }
 
         // GET: Jobs/Delete/5
+        [Authorize(Roles = "Administrator, Warehouse manager")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Jobs == null)
@@ -178,6 +289,7 @@ namespace sfl.Controllers
         // POST: Jobs/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrator, Warehouse manager")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (_context.Jobs == null)
