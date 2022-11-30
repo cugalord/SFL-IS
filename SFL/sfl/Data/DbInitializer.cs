@@ -601,9 +601,6 @@ namespace sfl.Data
             {
                 var streets = new Street[]
                 {
-                    /*new Street{CityCode="1000", StreetName="Miklosiceva", StreetNumber=6},
-                    new Street{CityCode="1310", StreetName="Knafljev trg", StreetNumber=2},
-                    new Street{CityCode="1330", StreetName="Kidriceva", StreetNumber=8},*/
                     new Street{CityCode="1000", StreetName="Celovška ulica", StreetNumber=13},
                     new Street{CityCode="2000", StreetName="Maistrova", StreetNumber=26},
                     new Street{CityCode="6000", StreetName="Prekomorska ulica", StreetNumber=4},
@@ -619,8 +616,6 @@ namespace sfl.Data
             {
                 var branches = new Branch[]
                 {
-                    /*new Branch{Name="Ljubljana branch",CityCode="1000", StreetName="Miklosiceva", StreetNumber=6},
-                    new Branch{Name="Ribnica branch",CityCode="1310", StreetName="Knafljev trg", StreetNumber=2},*/
                     new Branch{Name="Skladišče LJ", CityCode="1000", StreetName="Celovška ulica", StreetNumber=13},
                     new Branch{Name="Skladišče MB", CityCode="2000", StreetName="Maistrova", StreetNumber=26},
                     new Branch{Name="Skladišče KP", CityCode="6000", StreetName="Prekomorska ulica", StreetNumber=4},
@@ -646,20 +641,6 @@ namespace sfl.Data
                 context.ParcelStatuses.AddRange(statuses);
                 context.SaveChanges();
             }
-
-            /*if (!context.Parcels.Any())
-            {
-                var parcels = new Parcel[]
-                {
-                    new Parcel{Weight=0,Height=0,Width=0,Depth=0,ParcelStatusID=1,RecipientCode="1000",RecipientStreetName="Miklosiceva",RecipientStreetNumber=6,
-                    SenderCode="1000",SenderStreetName="Miklosiceva",SenderStreetNumber=6},
-                    new Parcel{Weight=0,Height=0,Width=0,Depth=0,ParcelStatusID=1,RecipientCode="1000",RecipientStreetName="Miklosiceva",RecipientStreetNumber=6,
-                    SenderCode="1000",SenderStreetName="Miklosiceva",SenderStreetNumber=6},
-                };
-
-                context.Parcels.AddRange(parcels);
-                context.SaveChanges();
-            }*/
 
             // Add job statuses.
             if (!context.JobStatuses.Any())
@@ -714,32 +695,6 @@ namespace sfl.Data
             // Add application users.
             var users = new ApplicationUser[]
             {
-                /*new ApplicationUser
-                {
-                    Name = "Peter",
-                    Surname = "Klepec",
-                    Email = "peter.klepec@sfl.si",
-                    NormalizedEmail = "XXXX@SLF.SI",
-                    UserName = "peter.klepec@sfl.si",
-                    NormalizedUserName = "peter.klepec@sfl.si",
-                    PhoneNumber = "+111111111111",
-                    EmailConfirmed = true,
-                    PhoneNumberConfirmed = true,
-                    SecurityStamp = Guid.NewGuid().ToString("D")
-                },
-                new ApplicationUser
-                {
-                    Name = "Gillete",
-                    Surname = "Chandelier",
-                    Email = "gillete.chandelier@sfl.si",
-                    NormalizedEmail = "XXXX@SLF.SI",
-                    UserName = "gillete.chandelier@sfl.si",
-                    NormalizedUserName = "gillete.chandelier@sfl.si",
-                    PhoneNumber = "+111111111111",
-                    EmailConfirmed = true,
-                    PhoneNumberConfirmed = true,
-                    SecurityStamp = Guid.NewGuid().ToString("D")
-                },*/
                 new ApplicationUser
                 {
                     Name = "Klemen",
@@ -990,8 +945,6 @@ namespace sfl.Data
                     .First()
                     .Id;
 
-                Console.WriteLine("RoleID: " + roleID.ToString() + " : " + user.Id + " : " + user.UserName);
-
                 var UserRoles = new IdentityUserRole<string>[]
                 {
                     new IdentityUserRole<string>{RoleId=roleID.ToString(), UserId=userID},
@@ -1006,43 +959,6 @@ namespace sfl.Data
                 }
             }
             context.SaveChanges();
-
-            /*for (int i = 0; i < users.Length; i++)
-            {
-                var user = users[i];
-                if (!context.Staff.Any(s => s.Username == user.UserName))
-                {
-                    Staff staff = new Staff
-                    {
-                        Username = user.UserName,
-                        Name = user.Name,
-                        Surname = user.Surname,
-                        BranchID = 1,
-                        RoleID = context.StaffRoles.Select(sr => sr.ID).Where(sr => sr == i + 1).ToList()[0],
-                    };
-                    context.Staff.Add(staff);
-                }
-            }
-
-            context.SaveChanges();
-
-            for (int i = 0; i < users.Length; i++)
-            {
-                var user = users[i];
-                var UserRoles = new IdentityUserRole<string>[]
-                {
-                    new IdentityUserRole<string>{RoleId = roles[i].Id, UserId=user.Id},
-                };
-
-                foreach (IdentityUserRole<string> r in UserRoles)
-                {
-                    if (!context.UserRoles.Any(ur => ur.UserId == user.Id))
-                    {
-                        context.UserRoles.Add(r);
-                    }
-                }
-            }
-            context.SaveChanges();*/
         }
     }
 }
