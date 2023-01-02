@@ -69,7 +69,7 @@ namespace sfl.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Weight,Height,Width,Depth,ParcelStatusID,RecipientCode,RecipientStreetName,RecipientStreetNumber,SenderCode,SenderStreetName,SenderStreetNumber")] Parcel parcel)
+        public async Task<IActionResult> Create([Bind("ID,Weight,Height,Width,Depth,RecipientCode,RecipientStreetName,RecipientStreetNumber,SenderCode,SenderStreetName,SenderStreetNumber")] Parcel parcel)
         {
             RemoveNavigationProperties();
             if (ModelState.IsValid)
@@ -109,6 +109,8 @@ namespace sfl.Controllers
                     _context.Streets.Add(street);
                     await _context.SaveChangesAsync();
                 }
+
+                parcel.ParcelStatusID = 1;
 
                 _context.Add(parcel);
                 await _context.SaveChangesAsync();
@@ -156,6 +158,12 @@ namespace sfl.Controllers
             {
                 try
                 {
+                    //Parcel p = _context.Parcels.Select(p => p).Where(p => p.ID == parcel.ID).FirstOrDefault();
+
+                    //parcel.ParcelStatusID = p.ParcelStatusID;
+
+                    Console.WriteLine(parcel.ParcelStatusID);
+
                     _context.Update(parcel);
                     await _context.SaveChangesAsync();
                 }

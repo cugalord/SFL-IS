@@ -137,7 +137,7 @@ namespace sfl.Controllers
                 "Username", "Username");
             }
 
-            ViewData["JobTypeID"] = new SelectList(_context.JobTypes, "ID", "Name");
+            ViewData["JobTypeID"] = new SelectList(_context.JobTypes.Where(jt => (jt.ID != 1) && (jt.ID != 2) && (jt.ID != 4)), "ID", "Name");
             return View();
         }
 
@@ -198,7 +198,7 @@ namespace sfl.Controllers
             }
 
             ViewData["Parcels"] = new SelectList(_context.Parcels, "ID", "ID");
-            ViewData["JobTypeID"] = new SelectList(_context.JobTypes, "ID", "Name");
+            ViewData["JobTypeID"] = new SelectList(_context.JobTypes.Where(jt => (jt.ID != 1) && (jt.ID != 2) && (jt.ID != 4)), "ID", "Name");
             return View(job);
         }
 
@@ -253,8 +253,8 @@ namespace sfl.Controllers
 
                     job.StaffUsername = _context.Jobs.Select(j => new { j.StaffUsername, j.ID })
                         .Where(j => j.ID == job.ID).ToList()[0].StaffUsername;
-                    _context.Update(job);
                     MoveJob(job);
+                    _context.Update(job);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -334,11 +334,12 @@ namespace sfl.Controllers
 
             if (job.JobStatusID == 2)
             {
-                if (job.Staff.RoleID == 3)
+                Staff currentStaff = _context.Staff.Select(s => s).Where(s => s.Username == job.StaffUsername).First();
+                if (currentStaff.RoleID == 3)
                 {
                     if (job.JobTypeID == 3)
                     {
-                        Dictionary<String, HashSet<String>> locationsToParcels = new Dictionary<String, HashSet<String>>();
+                        Dictionary<String, HashSet<String>> locationsToParcels = new();
 
                         foreach (String parcelID in job.ParcelIDs)
                         {
@@ -366,9 +367,9 @@ namespace sfl.Controllers
                         Staff tmpStaff = _context.Staff.Select(s => s).Where(s => s.Username == job.StaffUsername).First();
                         Branch tmpBranch = _context.Branches.Select(b => b).Where(b => b.ID == tmpStaff.BranchID).First();
 
-                        foreach (string key in locationsToParcels.Keys)
+                        foreach (String key in locationsToParcels.Keys)
                         {
-                            foreach (string parcelID in locationsToParcels[key])
+                            foreach (String parcelID in locationsToParcels[key])
                             {
                                 // Get random driver at warehouse with given key.
                                 List<Staff> tmpStaffList = _context.Staff.Select(s => s).Where(s => s.RoleID == 4 && s.BranchID == tmpBranch.ID).ToList();
@@ -406,7 +407,7 @@ namespace sfl.Controllers
                         }
                     }
                 }
-                else if (job.Staff.RoleID == 5)
+                else if (currentStaff.RoleID == 5)
                 {
                     if (job.JobTypeID == 5)
                     {
