@@ -631,11 +631,11 @@ namespace sfl.Data
             {
                 var statuses = new ParcelStatus[]
                 {
-                    new ParcelStatus{ID=1,Name="In IT system"},
-                    new ParcelStatus{ID=2,Name="In transit"},
-                    new ParcelStatus{ID=3,Name="At the final parcel center"},
-                    new ParcelStatus{ID=4,Name="In delivery"},
-                    new ParcelStatus{ID=5,Name="Delivered"},
+                    //new ParcelStatus{ID=1,Name="In IT system"},
+                    new ParcelStatus{ID=1,Name="In transit"},
+                    new ParcelStatus{ID=2,Name="At the final parcel center"},
+                    new ParcelStatus{ID=3,Name="In delivery"},
+                    new ParcelStatus{ID=4,Name="Delivered"},
                 };
 
                 context.ParcelStatuses.AddRange(statuses);
