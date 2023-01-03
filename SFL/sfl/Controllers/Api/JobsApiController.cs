@@ -78,7 +78,9 @@ namespace sfl.Controllers_Api
         [HttpPut("{id}")]
         public async Task<IActionResult> PutJob(int id, int jobStatusID)//Job job)
         {
-            var job = await _context.Jobs.FindAsync(id);
+            //var job = await _context.Jobs.FindAsync(id);
+
+            var job = await _context.Jobs.Select(j => j).Where(j => j.ID == id).FirstOrDefaultAsync();
 
             if (id != job.ID)
             {
