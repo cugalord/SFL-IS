@@ -70,7 +70,7 @@ namespace sfl.Controllers_Api
                 return Problem(
                     type: "/docs/errors/forbidden",
                     title: "User is locked out.",
-                    statusCode: StatusCodes.Status403Forbidden,
+                    statusCode: StatusCodes.Status406NotAcceptable,
                     instance: HttpContext.Request.Path
                 );
             }
@@ -82,7 +82,7 @@ namespace sfl.Controllers_Api
                 return Problem(
                     type: "/docs/errors/forbidden",
                     title: "User is locked out.",
-                    statusCode: StatusCodes.Status403Forbidden,
+                    statusCode: StatusCodes.Status406NotAcceptable,
                     instance: HttpContext.Request.Path
                 );
             }
