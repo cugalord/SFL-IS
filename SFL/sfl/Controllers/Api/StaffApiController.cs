@@ -49,6 +49,8 @@ namespace sfl.Controllers_Api
                 return NotFound();
             }
 
+            staff.Role = _context.StaffRoles.Find(staff.RoleID);
+
             return staff;
         }
 

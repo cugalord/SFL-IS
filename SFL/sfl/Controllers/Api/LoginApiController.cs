@@ -59,14 +59,9 @@ namespace sfl.Controllers_Api
             {
                 Staff staff = _context.Staff.Where(s => s.Username == username).FirstOrDefault();
                 return AcceptedAtAction("PostLogin", new { id = user.Username }, "SecretKey");
-                //return LocalRedirect(returnUrl);
             }
             else if (result.IsLockedOut)
             {
-                //return JsonContent("User is locked out.");
-                //return JsonContent.Create("User is locket out.");
-                //return StatusCode(403, "User is locked out.");
-                //return Forbid();
                 return Problem(
                     type: "/docs/errors/forbidden",
                     title: "User is locked out.",
@@ -76,12 +71,9 @@ namespace sfl.Controllers_Api
             }
             else
             {
-                //return JsonContent.Create("Invalid login attempt.");
-                //return StatusCode(403, "User is locked out.");
-                //return Forbid();
                 return Problem(
                     type: "/docs/errors/forbidden",
-                    title: "User is locked out.",
+                    title: "Wrong username or password.",
                     statusCode: StatusCodes.Status406NotAcceptable,
                     instance: HttpContext.Request.Path
                 );
