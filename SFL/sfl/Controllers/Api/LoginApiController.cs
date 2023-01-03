@@ -62,11 +62,12 @@ namespace sfl.Controllers_Api
             }
             else if (result.IsLockedOut)
             {
-                return Problem("User is locked out.");
+                //return JsonContent("User is locked out.");
+                return JsonContent.Create("User is locket out.");
             }
             else
             {
-                return Problem("Invalid login attempt.");
+                return JsonContent.Create("Invalid login attempt.");
             }
         }
     }
