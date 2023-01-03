@@ -76,15 +76,18 @@ namespace sfl.Controllers_Api
         // PUT: api/JobsApi/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutJob(int id, Job job)
+        public async Task<IActionResult> PutJob(int id, int jobStatusID)//Job job)
         {
+            var job = await _context.Jobs.FindAsync(id);
+
             if (id != job.ID)
             {
                 return BadRequest();
             }
 
             // _context.Entry(job).State = EntityState.Modified;
-            _context.Jobs.Attach(job);
+            //_context.Jobs.Attach(job);
+            job.JobStatusID = jobStatusID;
             _context.Entry(job).Property(j => j.JobStatusID).IsModified = true;
 
             try
