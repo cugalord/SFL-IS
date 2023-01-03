@@ -33,7 +33,7 @@ namespace sfl.Controllers_Api
         }
 
         // GET: api/JobsApi/5
-        [HttpGet("{id}")]
+        /*[HttpGet("{id}")]
         public async Task<ActionResult<Job>> GetJob(int id)
         {
             if (_context.Jobs == null)
@@ -48,6 +48,28 @@ namespace sfl.Controllers_Api
             }
 
             return job;
+        }*/
+
+        [HttpGet("{username}")]
+        public async Task<ActionResult<IEnumerable<Job>>> GetJob(string username)
+        {
+            if (_context.Jobs == null)
+            {
+                return NotFound();
+            }
+            var jobs = _context.Jobs.Select(j => j).Where(j => j.StaffUsername == username).ToList();
+
+            foreach (var job in jobs)
+            {
+                job.ParcelIDs = _context.JobsParcels.Select(pj => pj).Where(pj => pj.JobID == job.ID).Select(pj => pj.ParcelID).ToList();
+            }
+
+            if (jobs == null)
+            {
+                return NotFound();
+            }
+
+            return jobs;
         }
 
         // PUT: api/JobsApi/5
