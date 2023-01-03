@@ -89,7 +89,7 @@ namespace sfl.Controllers_Api
             //_context.Jobs.Attach(job);
             job.JobStatusID = jobStatusID;
             _context.Update(job);
-            _context.Entry(job).Property(j => j.JobStatusID).IsModified = true;
+            //_context.Entry(job).Property(j => j.JobStatusID).IsModified = true;
 
             try
             {
