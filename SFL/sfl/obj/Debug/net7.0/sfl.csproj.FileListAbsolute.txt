@@ -281,3 +281,7 @@ G:\Documents\FRI\3. letnik\IS\project\SFL-IS\SFL\sfl\bin\Debug\net7.0\Microsoft.
 G:\Documents\FRI\3. letnik\IS\project\SFL-IS\SFL\sfl\bin\Debug\net7.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
 G:\Documents\FRI\3. letnik\IS\project\SFL-IS\SFL\sfl\bin\Debug\net7.0\Microsoft.AspNetCore.Identity.UI.dll
 G:\Documents\FRI\3. letnik\IS\project\SFL-IS\SFL\sfl\obj\Debug\net7.0\sfl.MvcApplicationPartsAssemblyInfo.cs
+G:\Documents\FRI\3. letnik\IS\project\SFL-IS\SFL\sfl\bin\Debug\net7.0\Microsoft.OpenApi.dll
+G:\Documents\FRI\3. letnik\IS\project\SFL-IS\SFL\sfl\bin\Debug\net7.0\Swashbuckle.AspNetCore.Swagger.dll
+G:\Documents\FRI\3. letnik\IS\project\SFL-IS\SFL\sfl\bin\Debug\net7.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+G:\Documents\FRI\3. letnik\IS\project\SFL-IS\SFL\sfl\bin\Debug\net7.0\Swashbuckle.AspNetCore.SwaggerUI.dll

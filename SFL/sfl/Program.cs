@@ -17,6 +17,8 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
 builder.Services.AddDbContext<CompanyContext>(options =>
     options.UseSqlServer(connectionString));
 
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
 
 CreateDbIfNotExists(app);
@@ -32,6 +34,12 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.hson", "SFL API V1");
+});
 
 app.UseRouting();
 app.UseAuthentication();
