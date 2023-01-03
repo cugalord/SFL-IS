@@ -61,8 +61,8 @@ namespace sfl.Controllers_Api
 
             foreach (var job in jobs)
             {
-                job.ParcelIDs = await _context.JobsParcels.Select(pj => pj).Where(pj => pj.JobID == job.ID).Select(pj => pj.ParcelID).ToListAsync();
-                job.JobsParcels = await _context.JobsParcels.Select(pj => pj).Where(pj => pj.JobID == job.ID).ToListAsync();
+                job.ParcelIDs = _context.JobsParcels.Select(pj => pj).Where(pj => pj.JobID == job.ID).Select(pj => pj.ParcelID).ToList();
+                job.JobsParcels = _context.JobsParcels.Select(pj => pj).Where(pj => pj.JobID == job.ID).ToList();
             }
 
             if (jobs == null)
