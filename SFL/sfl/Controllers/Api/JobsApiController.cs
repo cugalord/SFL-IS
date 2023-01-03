@@ -59,11 +59,11 @@ namespace sfl.Controllers_Api
             }
             var jobs = _context.Jobs.Select(j => j).Where(j => j.StaffUsername == username).ToList();
 
-            foreach (var job in jobs)
+            /*foreach (var job in jobs)
             {
                 job.ParcelIDs = _context.JobsParcels.Select(pj => pj).Where(pj => pj.JobID == job.ID).Select(pj => pj.ParcelID).ToList();
                 job.JobsParcels = _context.JobsParcels.Select(pj => pj).Where(pj => pj.JobID == job.ID).ToList();
-            }
+            }*/
 
             if (jobs == null)
             {
