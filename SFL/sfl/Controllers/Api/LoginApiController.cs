@@ -65,12 +65,26 @@ namespace sfl.Controllers_Api
             {
                 //return JsonContent("User is locked out.");
                 //return JsonContent.Create("User is locket out.");
-                return StatusCode(403, "User is locked out.");
+                //return StatusCode(403, "User is locked out.");
+                //return Forbid();
+                return Problem(
+                    type: "/docs/errors/forbidden",
+                    title: "User is locked out.",
+                    statusCode: StatusCodes.Status403Forbidden,
+                    instance: HttpContext.Request.Path
+                );
             }
             else
             {
                 //return JsonContent.Create("Invalid login attempt.");
-                return StatusCode(403, "User is locked out.");
+                //return StatusCode(403, "User is locked out.");
+                //return Forbid();
+                return Problem(
+                    type: "/docs/errors/forbidden",
+                    title: "User is locked out.",
+                    statusCode: StatusCodes.Status403Forbidden,
+                    instance: HttpContext.Request.Path
+                );
             }
         }
     }
