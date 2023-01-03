@@ -57,7 +57,7 @@ namespace sfl.Controllers_Api
             {
                 return NotFound();
             }
-            var jobs = _context.Jobs.Select(j => j).Where(j => j.StaffUsername == username).ToList();
+            var jobs = await _context.Jobs.Select(j => j).Where(j => j.StaffUsername == username).ToListAsync();
 
             /*foreach (var job in jobs)
             {
