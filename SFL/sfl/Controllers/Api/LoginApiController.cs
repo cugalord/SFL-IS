@@ -58,7 +58,7 @@ namespace sfl.Controllers_Api
             if (result.Succeeded)
             {
                 Staff staff = _context.Staff.Where(s => s.Username == username).FirstOrDefault();
-                return AcceptedAtAction("PostLogin", new { id = user.Username }, "SecretKey");
+                return AcceptedAtAction("PostLogin", new { id = user.Username }, "SecretKey;" + staff.RoleID);
             }
             else if (result.IsLockedOut)
             {
