@@ -34,6 +34,7 @@ namespace sfl.Controllers_Api
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Job>>> GetJobs()
         {
+            // For testing purposes only
             if (_context.Jobs == null)
             {
                 return NotFound();
@@ -44,7 +45,7 @@ namespace sfl.Controllers_Api
         // POST: api/LoginApi
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<JsonContent>> PostJob(ApiLoginModel user)
+        public async Task<ActionResult<JsonContent>> PostLogin([FromBody] ApiLoginModel user)
         {
             var ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
@@ -63,11 +64,13 @@ namespace sfl.Controllers_Api
             else if (result.IsLockedOut)
             {
                 //return JsonContent("User is locked out.");
-                return JsonContent.Create("User is locket out.");
+                //return JsonContent.Create("User is locket out.");
+                return StatusCode(403, "User is locked out.");
             }
             else
             {
-                return JsonContent.Create("Invalid login attempt.");
+                //return JsonContent.Create("Invalid login attempt.");
+                return StatusCode(403, "User is locked out.");
             }
         }
     }
