@@ -83,7 +83,9 @@ namespace sfl.Controllers_Api
                 return BadRequest();
             }
 
-            _context.Entry(job).State = EntityState.Modified;
+            // _context.Entry(job).State = EntityState.Modified;
+            _context.Jobs.Attach(job);
+            _context.Entry(job).Property(j => j.JobStatusID).IsModified = true;
 
             try
             {
