@@ -78,26 +78,27 @@ namespace sfl.Controllers_Api
         [HttpPut("{id}/{jobStatusID}")]
         public async Task<IActionResult> PutJob(int id, int jobStatusID)//Job job)
         {
-            //var job = await _context.Jobs.FindAsync(id);
-
             var job = await _context.Jobs.Select(j => j).Where(j => j.ID == id).FirstOrDefaultAsync();
+
+            if (job == null)
+            {
+                return NotFound();
+            }
 
             if (id != job.ID)
             {
                 return BadRequest();
             }
 
-            Console.WriteLine("JOB STATUS ID: " + jobStatusID);
-
-            // _context.Entry(job).State = EntityState.Modified;
-            //_context.Jobs.Attach(job);
             job.JobStatusID = jobStatusID;
             _context.Update(job);
-            //_context.Entry(job).Property(j => j.JobStatusID).IsModified = true;
+
+            // TODO ADD Dijkstra
 
             try
             {
                 await _context.SaveChangesAsync();
+                MoveJob(job);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -153,5 +154,281 @@ namespace sfl.Controllers_Api
         {
             return (_context.Jobs?.Any(e => e.ID == id)).GetValueOrDefault();
         }
+
+        public void MoveJob(Job job)
+        {
+            if (job == null || job.JobStatusID != 2)
+            {
+                return;
+            }
+
+            job.ParcelIDs = _context.Jobs.Select(j => new { j.ID, j.ParcelIDs }).Where(j => j.ID == job.ID).ToList()[0].ParcelIDs;
+
+            job.ParcelIDs = _context.JobsParcels.Select(jp => new { jp.JobID, jp.ParcelID })
+                .Where(jp => jp.JobID == job.ID).Select(jp => jp.ParcelID).ToList();
+
+            Staff jobEmployee = _context.Staff.Select(s => s).Where(s => s.Username == job.StaffUsername).First();
+            int jobEmployeeBranchID = jobEmployee.BranchID;
+
+            Dictionary<String, List<String>> locationsToParcelIDs = new()
+            {
+                { "Skladišče LJ", new List<String>() },
+                { "Skladišče MB", new List<String>() },
+                { "Skladišče KP", new List<String>() },
+                { "Skladišče NM", new List<String>() }
+            };
+
+            Dictionary<String, int> branchNameToID = new()
+            {
+                { "Skladišče LJ", 1 },
+                { "Skladišče MB", 2 },
+                { "Skladišče KP", 3 },
+                { "Skladišče NM", 4 }
+            };
+
+            if (jobEmployee.RoleID == 3)
+            {
+                if (job.JobTypeID == 3)
+                {
+                    // Sort the parcels into buckets by their destination.
+                    foreach (String parcelID in job.ParcelIDs)
+                    {
+                        Parcel currentParcel = _context.Parcels.Select(p => p).Where(p => p.ID == parcelID).First();
+                        int recipientCityCode = int.Parse(currentParcel.RecipientCode);
+
+                        if ((recipientCityCode >= 1000 && recipientCityCode < 2000) || (recipientCityCode >= 4000 && recipientCityCode < 5000))
+                        {
+                            locationsToParcelIDs["Skladišče LJ"].Add(parcelID);
+                        }
+                        else if ((recipientCityCode >= 2000 && recipientCityCode < 3000) || (recipientCityCode >= 5000 && recipientCityCode < 6000))
+                        {
+                            locationsToParcelIDs["Skladišče MB"].Add(parcelID);
+                        }
+                        else if ((recipientCityCode >= 3000 && recipientCityCode < 4000) || (recipientCityCode >= 6000 && recipientCityCode < 7000))
+                        {
+                            locationsToParcelIDs["Skladišče KP"].Add(parcelID);
+                        }
+                        else if ((recipientCityCode >= 7000 && recipientCityCode < 8000) || (recipientCityCode >= 9000 && recipientCityCode < 10000))
+                        {
+                            locationsToParcelIDs["Skladišče NM"].Add(parcelID);
+                        }
+                    }
+
+                    int currentBranchID = jobEmployee.BranchID;
+
+                    foreach (String key in locationsToParcelIDs.Keys)
+                    {
+                        foreach (String parcelID in locationsToParcelIDs[key])
+                        {
+                            int nextBranchID = 0;
+                            int nextJobTypeID = 0;
+
+                            // If current branch is final branch.
+                            if (currentBranchID == branchNameToID[key])
+                            {
+                                nextBranchID = currentBranchID;
+                                nextJobTypeID = 7;
+                            }
+                            // If current branch is not final branch.
+                            else
+                            {
+                                nextJobTypeID = 5;
+                                if (currentBranchID != 1)
+                                {
+                                    nextBranchID = 1;
+                                }
+                                else
+                                {
+                                    nextBranchID = branchNameToID[key];
+                                }
+                            }
+
+                            List<Staff> staff = _context.Staff.Select(s => s)
+                                    .Where(s => (s.BranchID == nextBranchID) && (s.RoleID == 5))
+                                    .ToList();
+
+                            Staff driver = staff[new Random().Next(staff.Count)];
+
+                            _context.Add(new Job()
+                            {
+                                JobTypeID = nextJobTypeID,
+                                JobStatusID = 1,
+                                StaffUsername = driver.Username,
+                                DateCreated = DateTime.Now,
+                                ParcelIDs = new List<String>() { parcelID }
+                            });
+                            _context.SaveChanges();
+
+                            // Link last created job to parcel.
+                            _context.JobsParcels.Add(new JobParcel
+                            {
+                                JobID = _context.Jobs.Select(j => j)
+                                            .Where(j => j.JobTypeID == nextJobTypeID && j.JobStatusID == 1 && j.StaffUsername == driver.Username)
+                                            .Select(j => j.ID)
+                                            .Max(), // Get last job.
+                                ParcelID = parcelID
+                            });
+                            _context.SaveChanges();
+
+                            if (nextJobTypeID == 7)
+                            {
+                                Parcel p = _context.Parcels.Select(p => p).Where(p => p.ID == parcelID).First();
+                                p.ParcelStatusID = 2;
+                                _context.Update(p);
+                                _context.SaveChanges();
+                            }
+                        }
+                    }
+                }
+            }
+            else if (jobEmployee.RoleID == 5)
+            {
+                // If cargo departing confirmation, create job for themselves.
+                if (job.JobTypeID == 5)
+                {
+                    _context.Add(new Job()
+                    {
+                        JobTypeID = 6,
+                        JobStatusID = 1,
+                        StaffUsername = jobEmployee.Username,
+                        DateCreated = DateTime.Now,
+                        ParcelIDs = job.ParcelIDs
+                    });
+                    _context.SaveChanges();
+
+                    foreach (String parcelID in job.ParcelIDs)
+                    {
+                        // Link last created job to parcel.
+                        _context.JobsParcels.Add(new JobParcel
+                        {
+                            JobID = _context.Jobs.Select(j => j)
+                                        .Where(j => j.JobTypeID == 6 && j.JobStatusID == 1 && j.StaffUsername == jobEmployee.Username)
+                                        .Select(j => j.ID)
+                                        .Max(), // Get last job.
+                            ParcelID = parcelID
+                        });
+                        _context.SaveChanges();
+                    }
+                }
+                // If cargo arrival confirmation, create job for next warehouse.
+                else if (job.JobTypeID == 6)
+                {
+                    foreach (String parcelID in job.ParcelIDs)
+                    {
+                        Parcel currentParcel = _context.Parcels.Select(p => p).Where(p => p.ID == parcelID).First();
+                        int recipientCityCode = int.Parse(currentParcel.RecipientCode);
+
+                        if ((recipientCityCode >= 1000 && recipientCityCode < 2000) || (recipientCityCode >= 4000 && recipientCityCode < 5000))
+                        {
+                            locationsToParcelIDs["Skladišče LJ"].Add(parcelID);
+                        }
+                        else if ((recipientCityCode >= 2000 && recipientCityCode < 3000) || (recipientCityCode >= 5000 && recipientCityCode < 6000))
+                        {
+                            locationsToParcelIDs["Skladišče MB"].Add(parcelID);
+                        }
+                        else if ((recipientCityCode >= 3000 && recipientCityCode < 4000) || (recipientCityCode >= 6000 && recipientCityCode < 7000))
+                        {
+                            locationsToParcelIDs["Skladišče KP"].Add(parcelID);
+                        }
+                        else if ((recipientCityCode >= 7000 && recipientCityCode < 8000) || (recipientCityCode >= 9000 && recipientCityCode < 10000))
+                        {
+                            locationsToParcelIDs["Skladišče NM"].Add(parcelID);
+                        }
+                    }
+
+                    int currentBranchID = jobEmployee.BranchID;
+
+                    foreach (String key in locationsToParcelIDs.Keys)
+                    {
+                        foreach (String parcelID in locationsToParcelIDs[key])
+                        {
+                            int nextBranchID = 0;
+                            int nextJobTypeID = 3;
+
+                            // If current branch is final branch.
+                            if (currentBranchID == branchNameToID[key])
+                            {
+                                nextBranchID = currentBranchID;
+                            }
+                            // If current branch is not final branch.
+                            else if (currentBranchID == 1)
+                            {
+                                nextBranchID = branchNameToID[key];
+                            }
+
+                            List<Staff> staff = _context.Staff.Select(s => s)
+                                    .Where(s => (s.BranchID == nextBranchID) && (s.RoleID == 3))
+                                    .ToList();
+                            Staff driver = staff[new Random().Next(staff.Count)];
+
+                            _context.Add(new Job()
+                            {
+                                JobTypeID = nextJobTypeID,
+                                JobStatusID = 1,
+                                StaffUsername = driver.Username,
+                                DateCreated = DateTime.Now,
+                                ParcelIDs = new List<String>() { parcelID }
+                            });
+                            _context.SaveChanges();
+
+                            // Link last created job to parcel.
+                            _context.JobsParcels.Add(new JobParcel
+                            {
+                                JobID = _context.Jobs.Select(j => j)
+                                            .Where(j => j.JobTypeID == nextJobTypeID && (j.JobStatusID != 3) && j.StaffUsername == driver.Username)
+                                            .Select(j => j.ID)
+                                            .Max(), // Get last job.
+                                ParcelID = parcelID
+                            });
+                            _context.SaveChanges();
+
+                        }
+                    }
+                }
+                // If delivery cargo confirmation, create job for themselves.
+                else if (job.JobTypeID == 7)
+                {
+                    _context.Add(new Job()
+                    {
+                        JobTypeID = 8,
+                        JobStatusID = 1,
+                        StaffUsername = jobEmployee.Username,
+                        DateCreated = DateTime.Now,
+                        ParcelIDs = job.ParcelIDs
+                    });
+                    _context.SaveChanges();
+
+                    foreach (String parcelID in job.ParcelIDs)
+                    {
+                        // Link last created job to parcel.
+                        _context.JobsParcels.Add(new JobParcel
+                        {
+                            JobID = _context.Jobs.Select(j => j)
+                                        .Where(j => j.JobTypeID == 8 && j.JobStatusID == 1 && j.StaffUsername == jobEmployee.Username)
+                                        .Select(j => j.ID)
+                                        .Max(), // Get last job.
+                            ParcelID = parcelID
+                        });
+                        _context.SaveChanges();
+
+                        Parcel p = _context.Parcels.Select(p => p).Where(p => p.ID == parcelID).First();
+                        p.ParcelStatusID = 3;
+                        _context.Update(p);
+                        _context.SaveChanges();
+                    }
+                }
+                else if (job.JobTypeID == 8)
+                {
+                    foreach (String parcelID in job.ParcelIDs)
+                    {
+                        Parcel p = _context.Parcels.Select(p => p).Where(p => p.ID == parcelID).First();
+                        p.ParcelStatusID = 4;
+                        _context.Update(p);
+                        _context.SaveChanges();
+                    }
+                }
+            }
+        }
+
     }
 }

@@ -327,7 +327,7 @@ namespace sfl.Controllers
             }
         }
 
-        private void MoveJob(Job job)
+        public void MoveJob(Job job)
         {
             if (job == null || job.JobStatusID != 2)
             {
