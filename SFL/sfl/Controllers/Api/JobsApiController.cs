@@ -95,6 +95,11 @@ namespace sfl.Controllers_Api
                 return NoContent();
             }
 
+            if (jobStatusID == 2)
+            {
+                job.DateCompleted = DateTime.Now;
+            }
+
             job.JobStatusID = jobStatusID;
             _context.Update(job);
 
