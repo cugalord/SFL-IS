@@ -93,8 +93,6 @@ namespace sfl.Controllers_Api
             job.JobStatusID = jobStatusID;
             _context.Update(job);
 
-            // TODO ADD Dijkstra
-
             try
             {
                 await _context.SaveChangesAsync();

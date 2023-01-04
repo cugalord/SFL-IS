@@ -36,13 +36,15 @@ namespace sfl.Controllers_Api
 
         // GET: api/StaffApi/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Staff>> GetStaff(string id)
+        public async Task<ActionResult<IEnumerable<Staff>>> GetStaff(string id)
         {
             if (_context.Staff == null)
             {
                 return NotFound();
             }
-            var staff = await _context.Staff.FindAsync(id);
+            //var staff = await _context.Staff.FindAsync(id);
+            var branchID = _context.Staff.Select(s => s).Where(s => s.Username == id).FirstOrDefault().BranchID;
+            var staff = await _context.Staff.Select(s => s).Where(s => s.BranchID == branchID).ToListAsync();
 
             if (staff == null)
             {
