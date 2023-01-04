@@ -125,17 +125,54 @@ namespace sfl.Controllers_Api
 
         // POST: api/JobsApi
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+        /*[HttpPost]
         public async Task<ActionResult<Job>> PostJob(Job job)
         {
             if (_context.Jobs == null)
             {
                 return Problem("Entity set 'CompanyContext.Jobs'  is null.");
             }
+
             _context.Jobs.Add(job);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetJob", new { id = job.ID }, job);
+        }*/
+
+        [HttpPost]
+        public async Task<ActionResult<PostRq>> PostJob(PostRq job)
+        {
+            if (_context.Jobs == null)
+            {
+                return Problem("Entity set 'CompanyContext.Jobs'  is null.");
+            }
+
+            var actualJob = new Job
+            {
+                StaffUsername = job.StaffUsername,
+                JobStatusID = 1,
+                JobTypeID = int.Parse(job.JobTypeID),
+                DateCreated = DateTime.Now,
+                DateCompleted = null,
+                ParcelIDs = job.ParcelIDs
+            };
+
+            _context.Jobs.Add(actualJob);
+            await _context.SaveChangesAsync();
+
+            for (int i = 0; i < actualJob.ParcelIDs.Count; i++)
+            {
+                var jobParcel = new JobParcel
+                {
+                    JobID = actualJob.ID,
+                    ParcelID = job.ParcelIDs[i],
+                };
+
+                _context.JobsParcels.Add(jobParcel);
+                await _context.SaveChangesAsync();
+            }
+
+            return CreatedAtAction("GetJob", new { id = actualJob.ID }, job);
         }
 
         // DELETE: api/JobsApi/5
@@ -163,7 +200,7 @@ namespace sfl.Controllers_Api
             return (_context.Jobs?.Any(e => e.ID == id)).GetValueOrDefault();
         }
 
-        public void MoveJob(Job job)
+        private void MoveJob(Job job)
         {
             if (job == null || job.JobStatusID != 2)
             {
@@ -438,5 +475,12 @@ namespace sfl.Controllers_Api
             }
         }
 
+    }
+
+    public class PostRq
+    {
+        public string StaffUsername { get; set; }
+        public string JobTypeID { get; set; }
+        public string[] ParcelIDs { get; set; }
     }
 }
