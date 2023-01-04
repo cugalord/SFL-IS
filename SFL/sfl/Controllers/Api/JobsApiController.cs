@@ -90,6 +90,11 @@ namespace sfl.Controllers_Api
                 return BadRequest();
             }
 
+            if (job.JobStatusID == jobStatusID)
+            {
+                return NoContent();
+            }
+
             job.JobStatusID = jobStatusID;
             _context.Update(job);
 
