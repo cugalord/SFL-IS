@@ -5,6 +5,13 @@ Informacijski sistem za logistično podporo kurirski službi
 - Luka Šveigl (63200301)
 - Nejc Vrčon Zupan (63200327)
 
+## Kazalo
+- [Opis delovanja sistema](#opis-delovanja-sistema)
+- [Podatkovna baza](#podatkovna-baza)
+- [Opis nalog vsakega študenta](#opis-nalog-vsakega-študenta)
+- [Spletna aplikacija](#spletna-aplikacija)
+- [Mobilna aplikacija](#mobilna-aplikacija)
+
 
 ## Opis delovanja sistema:
 Z informacijskim sistemom bova podprla delo zaposlenih v kurirski službi, ki deluje po Sloveniji.
