@@ -1,20 +1,18 @@
-# SFL-IS
-
-## SFL (Simple Flyway Logistics)
+# SFL (Simple Flyway Logistics)
 Informacijski sistem za logistično podporo kurirski službi
 
-#### Člana Ekipe:
+## Člana Ekipe:
 - Luka Šveigl (63200301)
 - Nejc Vrčon Zupan (63200327)
 
 
-### Opis delovanja sistema:
+## Opis delovanja sistema:
 Z informacijskim sistemom bova podprla delo zaposlenih v kurirski službi, ki deluje po Sloveniji.
 Sistem omogoča check in/check out paketov, pregled nad paketi v skladišču, potrjevanje dostave paketa.
 Uporabniki sistema bodo zaposleni v podjetju (skladiščniki, dostavljalci in vodje skladišč).
 Informacijski sistem podpira implementacijo oz. nadgradnjo sledenja paketa za stranke.
 
-### Podatkovna baza:
+## Podatkovna baza:
 ![database](resources/is_model.png)
 
 #### Tabela City
@@ -109,10 +107,10 @@ Opis tabele:
 #### Sistemske tabele AspNet
 `Tabele AspNet` vsebujejo uporabnike v sistemu. Uporabniška imena so enaka v tabeli `Staff`.
 
-### Opis nalog vsakega študenta:
+## Opis nalog vsakega študenta:
 Vsi podatki informacijskega sistema so shranjeni v podatkovni bazi, za povezavo med uporabniškim vmesnikom in podatkovno bazo je uporabljeno .NET razvojno ogrodje, aplikacija pa bo tekla na Azure spletni platformi.
 
-### Spletna aplikacija
+## Spletna aplikacija
 Uporabnik se prijavi v aplikacijo z njegovim uporabniškim imenom in geslom.
 Uporabnikom se glede na njihovo vlogo v podjetju (uporabniška hierarhija) odprejo razlicna opravila:
 - Skaldiščniki in dostavljalci nato vidijo svoja opravila, ki jih morajo opraviti.
@@ -120,4 +118,4 @@ Uporabnikom se glede na njihovo vlogo v podjetju (uporabniška hierarhija) odpre
 - Logistik ima pregled nad vsemi skladišči in paketi, prav tako pa potrjuje naročila paketov
 - Administrator pa lahko ima poln dostop nad celotnim informacijskim sistemom
 
-### Mobilna aplikacija
+## Mobilna aplikacija
