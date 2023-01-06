@@ -6,18 +6,48 @@ Informacijski sistem za logistično podporo kurirski službi
 - Nejc Vrčon Zupan (63200327)
 
 ## Kazalo
+- [Uvod](#uvod)
 - [Opis delovanja sistema](#opis-delovanja-sistema)
 - [Podatkovna baza](#podatkovna-baza)
-- [Opis nalog vsakega študenta](#opis-nalog-vsakega-študenta)
 - [Spletna aplikacija](#spletna-aplikacija)
 - [Mobilna aplikacija](#mobilna-aplikacija)
+- [Opis nalog vsakega študenta](#opis-nalog-vsakega-študenta)
 
+
+## Uvod:
+Z informacijskim sistemom sva podprla delo v kurirski službi. Sistem omogoča check in paketov v skladišča, pregled nad paketi v skladišču, potrjevanje tovora med premikanjem iz skladišč in pred dostavo, ter potrjevanje dostave paketa. Uporabniki sistema so zaposleni (skladiščniki, dostavljalci in vodje skladišč).
+
+![parcel_flow](resources/parcel_flow.png)
+
+Vsak paket mora preiti čez več opravil, ki so razdeljene v tipe:
+- Handover
+- Check in
+- Cargo departing confirmation
+- Cargo arrival confirmation
+- Delivery cargo confirmation
+- Parcel handover
+
+Opravila opravljajo uporabniki glede na njihove vloge:
+- Warehouse manager
+- Warehouse worker
+- Logistics agent
+- Delivery driver
+
+Med potovanjem se samemu paketu prav tako spreminjajo statusi:
+- In transit
+- At the final parcel center
+- In delivery
+- Delivered
+
+Tako bi lahko uporabniku na spletni aplikaciji enostavno prikazali trenuten status njegovega paketa, prav tako pa lahko z izpisom vseh opravljenih opravil na katerih je paket prikažemo bolj podrobno potovanje paketa. Sledenje paketa bi tako zelo lahko implementirali, kot enostavno nadgradnjo.
 
 ## Opis delovanja sistema:
-Z informacijskim sistemom bova podprla delo zaposlenih v kurirski službi, ki deluje po Sloveniji.
-Sistem omogoča check in/check out paketov, pregled nad paketi v skladišču, potrjevanje dostave paketa.
-Uporabniki sistema bodo zaposleni v podjetju (skladiščniki, dostavljalci in vodje skladišč).
-Informacijski sistem podpira implementacijo oz. nadgradnjo sledenja paketa za stranke.
+Informacijski sistem je sestavljen iz MS SQL podatkovne baze, dveh spletnih aplikacij (testna in produkcijska), REST API-ja in mobilne aplikacije (Android). Podatkovna baza, REST API in spletne aplikacije so gostovane v storitvi Azure.
+
+Spletne aplikacije so ustvarjene v .NET okolju. Testna aplikacija se posodablja avtomatsko z spremembami v [github repozitoriju](https://github.com/cugalord/SFL-IS), produckijska pa ročno.
+
+REST API podpira funkcionalnost mobilne aplikacije (pregled in opravljanje opravil, ter prijava v informacijski sistem)
+![service_integration](resources/service_integration.png)
 
 ## Podatkovna baza:
 ![database](resources/is_model.png)
@@ -114,15 +144,38 @@ Opis tabele:
 #### Sistemske tabele AspNet
 `Tabele AspNet` vsebujejo uporabnike v sistemu. Uporabniška imena so enaka v tabeli `Staff`.
 
-## Opis nalog vsakega študenta:
-Vsi podatki informacijskega sistema so shranjeni v podatkovni bazi, za povezavo med uporabniškim vmesnikom in podatkovno bazo je uporabljeno .NET razvojno ogrodje, aplikacija pa bo tekla na Azure spletni platformi.
-
 ## Spletna aplikacija
 Uporabnik se prijavi v aplikacijo z njegovim uporabniškim imenom in geslom.
-Uporabnikom se glede na njihovo vlogo v podjetju (uporabniška hierarhija) odprejo razlicna opravila:
-- Skaldiščniki in dostavljalci nato vidijo svoja opravila, ki jih morajo opraviti.
-- Vodja skladišča lahko vidi še pregled nad celotnim skladiščem (kje je zaposlen) in zgodovini paketa.
-- Logistik ima pregled nad vsemi skladišči in paketi, prav tako pa potrjuje naročila paketov
-- Administrator pa lahko ima poln dostop nad celotnim informacijskim sistemom
+Uporabnikom se glede na njihovo vlogo v podjetju (uporabniška hierarhija) odprejo različna opravila:
+- Skladiščniki in dostavljalci nato vidijo svoja opravila, ki jih morajo opraviti.
+- Vodja skladišča lahko vidi še pregled nad celotnim skladiščem (kjer je zaposlen) in ustvaraja nova opravila podrejenim.
+- Logistik ima pregled nad vsemi opravili in paketi (lahko tudi ustvarja nove) in ima dostop do analitičnih pogledov ustvarjenih v grafani.
+- Administrator pa lahko ima poln dostop v spletni aplikaciji.
 
 ## Mobilna aplikacija
+Uporabnik se prijavi v aplikacijo z njegovim uporabniškim imenom in geslom.
+Uporabnikom se glede na njihovo vlogo v podjetju (uporabniška hierarhija) odprejo različna opravila:
+- Skladiščniki in dostavljalci nato vidijo svoja opravila, ki jih morajo opraviti (to naredijo z skeniranjem QR kode paketa).
+- Vodja skladišča lahko vidi še pregled nad celotnim skladiščem (kjer je zaposlen) in ustvaraja nova opravila podrejenim.
+
+Izvorna koda mobilne aplikacije je dostopna na [repozitoriju](https://github.com/cugalord/SFL-IS-mobile), zaslonske slike pa na [povezavi](https://github.com/cugalord/SFL-IS/tree/main/resources).
+
+![mobile_app](resources/mobile_app.png)
+
+## Opis nalog vsakega študenta:
+#### Luka Šveigl:
+  - Začetna postavitev projekta
+  - Implementacija spletne aplikacije, kontrolerjev, pogledov
+  - Implementacija spletnega vmesnika, testiranje preko storitve Postman, kreacija dokumentacije z Swagger
+  - Implementacija mobilne aplikacije, povezovanje aplikacije z spletno storitvijo preko knjižnice Volley
+  - Vgradnja spletnega "dashboard-a" Grafane v spletno aplikacijo za logistike
+
+#### Nejc Vrčon Zupan:
+  - Pisanje poročil, kreacija ostale projektne dokumentacije
+  - Skrb za razvoj in razvojno okolje
+  - Kreiranje podatkovnega modela, postavitev podatkovne baze, definiranje podatkovnih omejitev, definicija potrebnih poizvedb...
+  - Kreiranje prikazov na spletnem "dashboardu" (Grafana)
+  - Upravljanje in postavitev gostovanja (Azure, Grafana)
+  
+#### Skupno: 
+  - Ideja
