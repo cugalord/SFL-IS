@@ -158,7 +158,7 @@ Uporabnikom se glede na njihovo vlogo v podjetju (uporabniška hierarhija) odpre
 - Skladiščniki in dostavljalci nato vidijo svoja opravila, ki jih morajo opraviti (to naredijo z skeniranjem QR kode paketa).
 - Vodja skladišča lahko vidi še pregled nad celotnim skladiščem (kjer je zaposlen) in ustvaraja nova opravila podrejenim.
 
-Izvorna koda mobilne aplikacije je dostopna na [repozitoriju](https://github.com/cugalord/SFL-IS-mobile), zaslonske slike pa na [povezavi](https://github.com/cugalord/SFL-IS/tree/main/resources).
+Izvorna koda mobilne aplikacije je dostopna na [repozitoriju](https://github.com/cugalord/SFL-IS-mobile), zaslonske slike pa na [povezavi](https://github.com/cugalord/SFL-IS/tree/main/resources/mobile_ui).
 
 ![mobile_app](resources/mobile_app.png)
 
