@@ -152,6 +152,8 @@ Uporabnikom se glede na njihovo vlogo v podjetju (uporabniška hierarhija) odpre
 - Logistik ima pregled nad vsemi opravili in paketi (lahko tudi ustvarja nove) in ima dostop do analitičnih pogledov ustvarjenih v grafani.
 - Administrator pa lahko ima poln dostop v spletni aplikaciji.
 
+Zaslonske slike dostopne na [povezavi](https://github.com/cugalord/SFL-IS/tree/main/resources/web_ui).
+
 ## Mobilna aplikacija
 Uporabnik se prijavi v aplikacijo z njegovim uporabniškim imenom in geslom.
 Uporabnikom se glede na njihovo vlogo v podjetju (uporabniška hierarhija) odprejo različna opravila:
